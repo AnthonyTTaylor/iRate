@@ -35,6 +35,7 @@
 
 
 #import <Availability.h>
+#import <StoreKit/StoreKit.h>
 #if !__has_feature(objc_arc)
 #error This class requires automatic reference counting
 #endif
@@ -257,64 +258,6 @@ static NSString *const iRateMacAppStoreURLFormat = @"macappstore://itunes.apple.
         message = (self.appStoreGenreID == iRateAppStoreGameGenreID)? [self localizedStringForKey:iRateGameMessageKey withDefault:@"If you enjoy playing %@, would you mind taking a moment to rate it? It won’t take more than a minute. Thanks for your support!"]: [self localizedStringForKey:iRateAppMessageKey withDefault:@"If you enjoy using %@, would you mind taking a moment to rate it? It won’t take more than a minute. Thanks for your support!"];
     }
     return [message stringByReplacingOccurrencesOfString:@"%@" withString:self.applicationName];
-}
-
-- (NSString *)updateMessage
-{
-    NSString *updateMessage = _updateMessage;
-    if (!updateMessage)
-    {
-        updateMessage = [self localizedStringForKey:iRateUpdateMessageKey withDefault:self.message];
-    }
-    return [updateMessage stringByReplacingOccurrencesOfString:@"%@" withString:self.applicationName];
-}
-
-- (NSString *)cancelButtonLabel
-{
-    return _cancelButtonLabel ?: [self localizedStringForKey:iRateCancelButtonKey withDefault:@"No, Thanks"];
-}
-
-- (NSString *)rateButtonLabel
-{
-    return _rateButtonLabel ?: [self localizedStringForKey:iRateRateButtonKey withDefault:@"Rate It Now"];
-}
-
-- (NSString *)remindButtonLabel
-{
-    return _remindButtonLabel ?: [self localizedStringForKey:iRateRemindButtonKey withDefault:@"Remind Me Later"];
-}
-
-- (NSURL *)ratingsURL
-{
-    if (_ratingsURL)
-    {
-        return _ratingsURL;
-    }
-
-    if (!self.appStoreID && self.verboseLogging)
-    {
-        NSLog(@"iRate could not find the App Store ID for this application. If the application is not intended for App Store release then you must specify a custom ratingsURL.");
-    }
-
-    NSString *URLString;
-
-#if TARGET_OS_IPHONE
-
-    URLString = iRateiOSAppStoreURLFormat;
-
-#else
-
-    URLString = iRateMacAppStoreURLFormat;
-
-#endif
-
-    return [NSURL URLWithString:[NSString stringWithFormat:URLString, @(self.appStoreID)]];
-
-}
-
-- (NSUInteger)appStoreID
-{
-    return _appStoreID ?: [[[NSUserDefaults standardUserDefaults] objectForKey:iRateAppStoreIDKey] unsignedIntegerValue];
 }
 
 - (NSDate *)firstUsed
@@ -817,7 +760,7 @@ static NSString *const iRateMacAppStoreURLFormat = @"macappstore://itunes.apple.
 {
     if ([self shouldPromptForRating])
     {
-        [self promptIfNetworkAvailable];
+       [SKStoreReviewController requestReview];
     }
 }
 
